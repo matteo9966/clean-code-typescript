@@ -39,7 +39,7 @@ Un'altra cosa: sapere queste cose non ti renderà immediatamente un miglior svil
 
 ### Usa nomi significativi per le variabili
 
-Distingui i nomi in modo che chi legga riesce a cogliere le differenze di ogni variabile.
+Distingui i nomi in modo che chi legge riesce a cogliere le differenze di ogni variabile.
 
 **Non OK:**
 
