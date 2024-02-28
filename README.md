@@ -5,18 +5,18 @@ Ispirati da [clean-code-javascript](https://github.com/ryanmcdermott/clean-code-
 
 ## Indice
 
-1. [Introduction](#introduction)
-2. [Variables](#variables)
-3. [Functions](#functions)
-4. [Objects and Data Structures](#objects-and-data-structures)
-5. [Classes](#classes)
+1. [Introduzione](#introduction)
+2. [Variabili](#variables)
+3. [Funzioni](#funzioni)
+4. [Oggetti e Strutture Dati](#objects-and-data-structures)
+5. [Classi](#classes)
 6. [SOLID](#solid)
 7. [Testing](#testing)
 8. [Concurrency](#concurrency)
-9. [Error Handling](#error-handling)
-10. [Formatting](#formatting)
-11. [Comments](#comments)
-12. [Translations](#translations)
+9. [Gestione degli Errori](#error-handling)
+10. [Formattazione](#formatting)
+11. [Commenti](#comments)
+12. [Tranduzioni](#translations)
 
 ## Introduzione
 
@@ -278,36 +278,33 @@ class Projector {
   }
 }
 ```
+**[⬆ Torna su](#indice)**
 
-TODO: condtinua da qua --------
+## Funzioni
 
-**[⬆ back to top](#table-of-contents)**
+### Argomenti delle funzioni (idealmente, 2 o meno)
 
-## Functions
+Limitare il numero di parametri della funzione è incredibilmente importante, perché rende più semplice il testing della funzione.
+Avere più di tre parametri porta a un'esplosione combinatoria in cui si devono testare moltissimi casi diversi con ogni argomento.
 
-### Function arguments (2 or fewer ideally)
+Uno o due argomenti sono il caso ideale, mentre tre dovrebbero essere evitati se possibile. Qualsiasi cosa in più dovrebbe essere consolidata.
+Di solito, se si hanno più di due argomenti, la funzione che hai scritto sta provando a fare troppe cose.
+Nei casi in cui non lo sia, la maggior parte delle volte un  higher-level object sarà sufficiente come argomento.
 
-Limiting the number of function parameters is incredibly important because it makes testing your function easier.
-Having more than three leads to a combinatorial explosion where you have to test tons of different cases with each separate argument.
+Prendi in considerazione l'utilizzo di object literals nei casi in cui ti ritrovi a dover usare molti argomenti.
 
-One or two arguments is the ideal case, and three should be avoided if possible. Anything more than that should be consolidated.
-Usually, if you have more than two arguments then your function is trying to do too much.
-In cases where it's not, most of the time a higher-level object will suffice as an argument.
+Per rendere ovvio quali funzioni siano necessarie, puoi usare il [destructuring](https://basarat.gitbook.io/typescript/future-javascript/destructuring) syntax.
+Ci sono alcuni vantaggi:
 
-Consider using object literals if you are finding yourself needing a lot of arguments.
+1. quando qualcuno guarda il la [firma](https://it.wikipedia.org/wiki/Firma_(programmazione)) della funzione, è immediatamente chiaro quali proprietà sono utilizzate.
 
-To make it obvious what properties the function expects, you can use the [destructuring](https://basarat.gitbook.io/typescript/future-javascript/destructuring) syntax.
-This has a few advantages:
+2. Può essere utilizzato per simulare parametri denominati.
 
-1. When someone looks at the function signature, it's immediately clear what properties are being used.
+3. La destrutturazione clona anche i valori primitivi specificati dell'argomento passato come oggetto alla funzione. Questo può aiutare a prevenire side effects. Nota: gli oggetti e gli array destrutturati dall'argomento oggetto NON sono clonati. 
 
-2. It can be used to simulate named parameters.
+4. Typescript ti avverte nel caso in cui non utilizzi delle proprietà, il che sarebbe impossibile senza destrutturare.
 
-3. Destructuring also clones the specified primitive values of the argument object passed into the function. This can help prevent side effects. Note: objects and arrays that are destructured from the argument object are NOT cloned.
-
-4. TypeScript warns you about unused properties, which would be impossible without destructuring.
-
-**Bad:**
+**Non OK:**
 
 ```ts
 function createMenu(
@@ -322,7 +319,7 @@ function createMenu(
 createMenu('Foo', 'Bar', 'Baz', true);
 ```
 
-**Good:**
+**OK:**
 
 ```ts
 function createMenu(options: {
@@ -341,8 +338,7 @@ createMenu({
   cancellable: true,
 });
 ```
-
-You can further improve readability by using [type aliases](https://www.typescriptlang.org/docs/handbook/advanced-types.html#type-aliases):
+Puoi migliorare la legibilità anche usando i [type aliases](https://www.typescriptlang.org/docs/handbook/advanced-types.html#type-aliases):
 
 ```ts
 type MenuOptions = {
@@ -364,13 +360,13 @@ createMenu({
 });
 ```
 
-**[⬆ back to top](#table-of-contents)**
+**[⬆ Torna su](#indice)**
 
-### Functions should do one thing
+### Le funzioni devono svolgere una sola funzione
 
-This is by far the most important rule in software engineering. When functions do more than one thing, they are harder to compose, test, and reason about. When you can isolate a function to just one action, it can be refactored easily and your code will read much cleaner. If you take nothing else away from this guide other than this, you'll be ahead of many developers.
+Questa è di gran lunga la regola più importante dell'ingegneria del software. Quando le funzioni fanno più di una cosa, sono più difficili da comporre, testare e ragionarci su. Quando si riesce a isolare una funzione a un'unica azione, la si può rifattorizzare facilmente e il codice sarà molto più pulito. Solo apprendendo questa nozione da questa guida, sarai molto avanti rispetto a molti altri sviluppatori. 
 
-**Bad:**
+**Non OK:**
 
 ```ts
 function emailActiveClients(clients: Client[]) {
@@ -383,7 +379,7 @@ function emailActiveClients(clients: Client[]) {
 }
 ```
 
-**Good:**
+**OK:**
 
 ```ts
 function emailActiveClients(clients: Client[]) {
@@ -396,41 +392,41 @@ function isActiveClient(client: Client) {
 }
 ```
 
-**[⬆ back to top](#table-of-contents)**
+**[⬆ Torna su](#indice)**
 
-### Function names should say what they do
+### I nomi delle funzioni devono descrivere quello che fa la funzione
 
-**Bad:**
+**Non OK:**
 
 ```ts
-function addToDate(date: Date, month: number): Date {
+function aggiungiAData(date: Date, month: number): Date {
   // ...
 }
 
 const date = new Date();
 
 // It's hard to tell from the function name what is added
-addToDate(date, 1);
+aggiungiAData(date, 1);
 ```
 
-**Good:**
+**OK:**
 
 ```ts
-function addMonthToDate(date: Date, month: number): Date {
+function aggiungiMeseAllaData(date: Date, month: number): Date {
   // ...
 }
 
 const date = new Date();
-addMonthToDate(date, 1);
+aggiungiMeseAllaData(date, 1);
 ```
 
-**[⬆ back to top](#table-of-contents)**
+**[⬆ Torna su](#indice)**
 
-### Functions should only be one level of abstraction
+### Le funzioni dovrebbero essere solo un livello di astrazione
 
-When you have more than one level of abstraction your function is usually doing too much. Splitting up functions leads to reusability and easier testing.
+Quando si ha più di un livello di astrazione, la funzione di solito fa troppo. La suddivisione delle funzioni porta alla riusabilità e a una maggiore facilità di test.
 
-**Bad:**
+**Non OK:**
 
 ```ts
 function parseCode(code: string) {
@@ -457,7 +453,7 @@ function parseCode(code: string) {
 }
 ```
 
-**Good:**
+**OK:**
 
 ```ts
 const REGEXES = [
@@ -496,22 +492,21 @@ function parse(tokens: Token[]): SyntaxTree {
 }
 ```
 
-**[⬆ back to top](#table-of-contents)**
+**[⬆ Torna su](#indice)**
 
-### Remove duplicate code
+### Rimuovi il codice duplicato
 
-Do your absolute best to avoid duplicate code.
-Duplicate code is bad because it means that there's more than one place to alter something if you need to change some logic.
+Fate del vostro meglio per evitare i codici duplicati.
+La duplicazione del codice è una cattiva pratica perché significa che c'è più di un posto dove modificare qualcosa se si deve cambiare la logica.
 
-Imagine if you run a restaurant and you keep track of your inventory: all your tomatoes, onions, garlic, spices, etc.
-If you have multiple lists that you keep this on, then all have to be updated when you serve a dish with tomatoes in them.
-If you only have one list, there's only one place to update!
+Immaginate di gestire un ristorante e di tenere traccia del vostro inventario: tutti i pomodori, le cipolle, l'aglio, le spezie e così via.Se avete più elenchi su cui tenere traccia di questi dati, tutti devono essere aggiornati quando servite un piatto che contiene pomodori.
+Se avete un solo elenco, c'è un solo posto da aggiornare!
 
-Oftentimes you have duplicate code because you have two or more slightly different things, that share a lot in common, but their differences force you to have two or more separate functions that do much of the same things. Removing duplicate code means creating an abstraction that can handle this set of different things with just one function/module/class.
+Spesso si ha codice duplicato perché si hanno due o più cose leggermente diverse, che hanno molto in comune, ma le cui differenze costringono ad avere due o più funzioni separate che fanno molte delle stesse cose. Eliminare il codice duplicato significa creare un'astrazione in grado di gestire questo insieme di cose diverse con una sola funzione/modulo/classe.
 
-Getting the abstraction right is critical, that's why you should follow the [SOLID](#solid) principles. Bad abstractions can be worse than duplicate code, so be careful! Having said this, if you can make a good abstraction, do it! Don't repeat yourself, otherwise, you'll find yourself updating multiple places anytime you want to change one thing.
+L'astrazione giusta è fondamentale, per questo bisogna seguire i principi [SOLID](#solid). Le cattive astrazioni possono essere peggio del codice duplicato, quindi fate attenzione! Detto questo, se potete creare una buona astrazione, fatelo! Non ripetetevi, altrimenti vi ritroverete ad aggiornare più punti ogni volta che vorrete cambiare una cosa.
 
-**Bad:**
+**Non OK:**
 
 ```ts
 function showDeveloperList(developers: Developer[]) {
@@ -547,7 +542,7 @@ function showManagerList(managers: Manager[]) {
 }
 ```
 
-**Good:**
+**OK:**
 
 ```ts
 class Developer {
@@ -585,7 +580,7 @@ function showEmployeeList(employee: (Developer | Manager)[]) {
 }
 ```
 
-You may also consider adding a union type, or common parent class if it suits your abstraction.
+Si può anche considerare l'aggiunta di un tipo di unione o di una classe genitore comune, se si adatta alla propria astrazione.
 
 ```ts
 class Developer {
@@ -605,13 +600,13 @@ function showEmployeeList(employee: Employee[]) {
 
 ```
 
-You should be critical about code duplication. Sometimes there is a tradeoff between duplicated code and increased complexity by introducing unnecessary abstraction. When two implementations from two different modules look similar but live in different domains, duplication might be acceptable and preferred over extracting the common code. The extracted common code, in this case, introduces an indirect dependency between the two modules.
+Dovete essere critici nei confronti della duplicazione del codice. A volte c'è un compromesso tra la duplicazione del codice e l'aumento della complessità dovuto all'introduzione di astrazione non necessaria. Quando due implementazioni di due moduli diversi sembrano simili, ma vivono in domini diversi, la duplicazione potrebbe essere accettabile e preferibile all'estrazione del codice comune. Il codice comune estratto, in questo caso, introduce una dipendenza indiretta tra i due moduli.
 
-**[⬆ back to top](#table-of-contents)**
+**[⬆ Torna su](#indice)**
 
-### Set default objects with Object.assign or destructuring
+### Fare il set degli oggetti default con Object.assign o destrutturazione
 
-**Bad:**
+**Non OK:**
 
 ```ts
 type MenuConfig = {
@@ -634,7 +629,7 @@ function createMenu(config: MenuConfig) {
 createMenu({ body: 'Bar' });
 ```
 
-**Good:**
+**OK:**
 
 ```ts
 type MenuConfig = {
@@ -661,7 +656,7 @@ function createMenu(config: MenuConfig) {
 createMenu({ body: 'Bar' });
 ```
 
-Or, you could use the spread operator:
+Oppure, potreste utilizzare l'operatore di spread:
 
 ```ts
 function createMenu(config: MenuConfig) {
@@ -676,11 +671,10 @@ function createMenu(config: MenuConfig) {
   // ...
 }
 ```
+L'operatore spread e `Object.assign()` sono molto simili.
+La differenza principale è che spreading definisce nuove proprietà, mentre `Object.assign()` le imposta. Più in dettaglio, la differenza è spiegata in [questo](https://stackoverflow.com/questions/32925460/object-spread-vs-object-assign) thread.
 
-The spread operator and `Object.assign()` are very similar.
-The main difference is that spreading defines new properties, while `Object.assign()` sets them. More detailed, the difference is explained in [this](https://stackoverflow.com/questions/32925460/object-spread-vs-object-assign) thread.
-
-Alternatively, you can use destructuring with default values:
+In alternativa, puoi usare la destrutturazione con valori di default:
 
 ```ts
 type MenuConfig = {
@@ -702,10 +696,12 @@ function createMenu({
 createMenu({ body: 'Bar' });
 ```
 
-To avoid any side effects and unexpected behavior by passing in explicitly the `undefined` or `null` value, you can tell the TypeScript compiler to not allow it.
-See [`--strictNullChecks`](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-2-0.html#--strictnullchecks) option in TypeScript.
+Per evitare side effects e comportamenti inaspettati, passando esplicitamente il valore `undefined` o `null`, si può dire al compilatore TypeScript di non permetterlo.
+Dai uno sguardo all' opzione typescript [`--strictNullChecks`](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-2-0.html#--strictnullchecks).
 
-**[⬆ back to top](#table-of-contents)**
+**[⬆ Torna su](#indice)**
+
+//TODO: continua da qua!!!!!!!!!!!!!!!!!!!!!!!
 
 ### Don't use flags as function parameters
 
