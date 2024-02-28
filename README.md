@@ -701,8 +701,6 @@ Dai uno sguardo all' opzione typescript [`--strictNullChecks`](https://www.types
 
 **[⬆ Torna su](#indice)**
 
-//TODO: continua da qua!!!!!!!!!!!!!!!!!!!!!!!
-
 ### Don't use flags as function parameters
 
 Flags tell your user that this function does more than one thing.
